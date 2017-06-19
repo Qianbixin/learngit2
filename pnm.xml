@@ -1,0 +1,582 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+
+
+<root>
+    <data_tpye_define name="数据种类">
+        <emuration cname="类" ename="class"></emuration>
+        <emuration cname="对象" ename="instance"></emuration>
+        <emuration cname="文字" ename="String"></emuration>
+        <emuration cname="整数" ename="integer"></emuration>
+        <emuration cname="小数" ename="float"></emuration>
+        <emuration cname="逻辑" ename="boolean"></emuration>
+    </data_tpye_define>
+    
+    <relation_tpye_define name="关系种类"> 
+        <emuration cname="包含" ename="include"></emuration>
+        <emuration cname="指向" ename="point"></emuration>
+        <emuration cname="拓扑" ename="topo"></emuration>
+    </relation_tpye_define>
+    
+    <member_tpye_define name="成员种类"> 
+        <emuration cname="保留字" ename="preservered"></emuration>
+        <emuration cname="私有域" ename="private"></emuration>
+        <emuration cname="公共域" ename="public"></emuration>
+    </member_tpye_define>
+    
+    
+    <modeldefine>
+        
+        <!--命名模型定义-->
+        <model cname="命名" ename="Naming" type="class">
+            <members>
+                <member name="aliasName" description="对象或实例的自由文本名称" data_type="String"/>
+                <member name="description" description="对对象或实例的描述" data_type="String"/>
+                <member name="name" description="在同一个父类的对象中，唯一的名称" data_type="String"/>
+                <!--去掉了该类中的属性"id"-->
+            </members>
+        </model>
+        
+        <!--电力系统资源模型定义-->
+        <model cname="电力系统资源" ename="PowerSystemResource" type="class" parent="Naming">
+            <members>
+                <member name="location" description="所属位置" data_type="String"/>
+                <member name="operatedByCompany" description="所属电力公司" data_type="instance" model="Company"/>
+            </members>
+        </model>
+        
+        <!--设备容器模型定义-->
+        <model cname="设备容器" ename="EquipmentContainer" type="class">
+            <members>
+                <member name="contains_Equipments" description="设备" data_type="instance" model="Equipment"/>
+                <member name="connectivityNodes" description="连接节点" data_type="instance" model="ConnectivityNode"/>
+                <member name="baseVolatge" description="基准电压" data_type="instance" model="BaseVolatge"/>
+                <member name="operatingVolatge" description="操作电压" data_type="instance" model="OperatingVolatge"/>
+                <member name="useStatus" description="使用状态" data_type="String"/>
+            </members>
+        </model>
+        
+        <!--变电站模型定义-->
+        <model cname="变电站" ename="Substation" type="class" parent="EquipmentContainer">
+            <members>
+                <member name="id" description="ID" data_type="string"/>
+                <member name="substationType" description="变电站类型" data_type="instance" model="SubstationType"/>
+            </members>
+        </model>
+        
+        <!--设备基类模型定义-->
+        <model cname="设备" ename="Equipment" type="class" parent="PowerSystemResource">
+            <members>
+                <member name="MemberOfEC" description="所属设备容器" data_type="instance" model="EquipmentContainer"/>
+            </members>
+        </model>
+        
+        <!--导电设备模型定义-->
+        <model cname="导电设备" ename="ConductingEquipment" type="class" parent="Equipment">
+            <members>
+                <member name="phases" description="导电设备对应的相位" data_type="instance" model="PhaseCode"/>
+                <member name="useStatus" description="设备状态" data_type="String"/>
+                <member name="terminals" description="连接端点" data_type="instance" model="Terminal"/>
+                <member name="baseVoltage" description="基准电压" data_type="instance" model="BaseVoltage"/>
+                <member name="operatingVoltage" description="操作电压" data_type="instance" model="OperatingVoltage"/>
+            </members>
+        </model>
+        
+        <!--控制室设备模型定义-->
+        <model cname="控制室设备" ename="ControlHouseEquipment" type="class">
+            <members>
+                <member name="ControlHouseEquipType" description="控制间设备类型" data_type="instance" model="ControlHouseEquipmentType"/>
+            </members>
+        </model>
+        
+        <!--量测模型定义-->
+        <model cname="量测" ename="Measurement" type="class" parent="Naming">
+            <members>
+                <member name="id" description="ID" data_type="String"/>
+                <member name="terminal" description="量测点" data_type="instance" model="Terminal"/>
+                <member name="measurementValue" description="量测值" data_type="instance" model="MeasurementValue"/>
+                <member name="positiveFlowIn" description="功率方向" data_type="boolean"/>
+                <member name="maxValue" description="量测的最大值" data_type="instance" model="Numeric"/>
+                <member name="minValue" description="量测的最小值" data_type="instance" model="Numeric"/>
+                <member name="dataType" description="数据类型" data_type="instance" model="NumericType"/>
+                <member name="normalValue" description="正常的测量值" data_type="instance" model="Numeric"/>
+            </members>
+        </model>
+        
+        <!--变电站模型定义-->
+        <model cname="变电站" ename="Substation" type="class" parent="EquipmentContainer">
+            <members>
+                <member name="voltageLever" description="电压等级" data_type="instance" model="VoltageLever"/>
+                <member name="bay" description="间隔" data_type="instance" model="Bay"/>
+                <member name="compositeSwitch" description="组合开关" data_type="instance" model="CompositeSwitch"/>
+            </members>
+        </model>
+        
+        <!--电力变压器模型定义-->
+        <model cname="电力变压器" ename="PowerTransformer" type="class" parent="Equipment">
+            <members>
+                <member name="id" description="ID" data_type="String"/> 
+                <member name="transformerWinding" description="变压器绕组" data_type="instance" model="TransformerWinding"/>
+                <member name="bmagSat" description="在饱和区域，铁芯的并联励磁电纳（%）" data_type="instance" model="PerCent"/>
+                <member name="magBaseKV" description="进行饱和磁化测量的参考电压" data_type="instance" model="Voltage"/>
+                <member name="magSatFlux" description="铁芯磁化饱和曲线拐点的磁通量（%）" data_type="instance" model="PerCent"/>
+                <member name="phases" description="电力变压器的相位" data_type="instance" model="PhaseCode"/>
+                <member name="transfCoolingType" description="变压器冷却类型" data_type="instance" model="TransformerCoolingType"/>
+                <member name="transformerType" description="变压器类型" data_type="instance" model="TransformerType"/>                
+            </members>
+        </model>
+
+        <!--变压器绕组模型定义-->
+        <model cname="变压器绕组" ename="TransformerWinding" type="class" parent="ConductingEquipment">
+            <members>            
+                <member name="memeberOfTransformer" description="所属变压器" data_type="instance" model="PowerTransformer"/>
+                <member name="terminal" description="所属端点" data_type="instance" model="Terminal"/>
+                <member name="b" description="励磁支路的电纳" data_type="instance" model="Susceptance"/>
+                <member name="insulationKV" description="基本绝缘水平的电压额定值" data_type="instance" model="Voltage"/>
+                <member name="connectionType" description="绕组的接线类型" data_type="instance" model="WindingConnection"/>
+                <member name="emergencyMVA" description="紧急情况下绕组能够承载的容量MVA" data_type="instance" model="ApparentPower"/>
+                <member name="g" description="励磁支路的电导" data_type="instance" model="Conductance"/>
+                <member name="grounded;" description="绕组接地时置“1”" data_type="instance" model="Boolean"/>
+                <member name="r" description="绕组的正序串联电阻" data_type="instance" model="Resistance"/>
+                <member name="r0" description="绕组的零序串联电阻" data_type="instance" model="Resistance"/>
+                <member name="ratedKV" description="绕组的额定电压（相位对地，通常与绕组分接头在中点的电压相同）" data_type="instance" model="Voltage"/>
+                <member name="ratedMVA" description="绕组的正常额定功率MVA" data_type="instance" model="ApparentPower"/>
+                <member name="rground" description="通过接地变压器回路的接地电阻" data_type="instance" model="Resistance"/>
+                <member name="shortTermMVA" description="绕组能够短时承载的功率MVA" data_type="instance" model="ApparentPower"/>
+                <member name="windingType" description="绕组的类型" data_type="instance" model="WindingType"/>
+                <member name="x" description="绕组的正序串联电抗" data_type="instance" model="Reactance"/>
+                <member name="x0" description="绕组的零序串联电抗" data_type="instance" model="Reactance"/>
+                <member name="xground" description="通过接地变压器回路的接地电抗" data_type="instance" model="Reactance"/>
+            </members>
+        </model>
+        
+        <!--分接头调节器模型定义-->
+        <model cname="分接头调节器" ename="TapChanger" type="class" parent="PowerSystemResource"> 
+            <members>
+                <member name="highStep" description="分接头的最高可能档位，从中点开始向上" data_type="instance" model="TapStep"/>
+                <member name="initialDelay" description="对于一个LTC，初始分接头调节器动作（第一次档位变化）的延时" data_type="instance" model="Seconds"/>
+                <member name="lowStep" description="分接头的最小可能档位，从中点开始向下" data_type="instance" model="TapStep"/>
+                <member name="neutralKV" description="绕组在中点分接头位置运行时的电压" data_type="instance" model="Voltage"/>
+                <member name="neutralStep" description="绕组的中点分接头档位" data_type="instance" model="TapStep"/>
+                <member name="normalStep" description="用于“正常”电网运行时的绕组分接头档位" data_type="instance" model="TapStep"/>
+                <member name="stepPhaseShiftIncrement" description="每个档位的相移(度)" data_type="instance" model="AngleDegrees"/>
+                <member name="stepVoltageIncrement" description="每个档位的变化量(标称电压的%)" data_type="instance" model="PerCent"/>
+                <member name="subsequentDelay" description="对于LTC，后续的分接头调节器操作的延时（第二次和第二次以后的档位变化）" data_type="instance" model="Seconds"/>
+                <member name="tculControlMode" description="对于LTC，分接头调节器的控制模式" data_type="instance" model="TransformerControlMode"/>
+            </members>
+        </model>
+        
+        <!--绕组测试模型定义-->
+        <model cname="绕组测试" ename="WindingTest" type="class"> 
+            <members>
+                <member name="id" description="ID" data_type="String"/>
+                <member name="excitingCurrent" description="空载电流百分比（%）" data_type="instance" model="ExcitingCurrent"/>
+                <member name="shortVoltage" description="短路电压百分比（%）" data_type="instance" model="ShortVoltage"/>
+                <member name="loadLoss" description="负载损耗（kW）" data_type="instance" model="LoadLoss"/>
+                <member name="noLoadLoss" description="空载损耗（kW）" data_type="instance" model="NoLoadLoss"/>         
+                <member name="phaseShift" description="相位移" data_type="instance" model="AngleDegrees"/>
+                <member name="leakageImpedance" description="漏阻抗" data_type="instance" model="Impedance"/>
+            </members>
+        </model>
+        
+        <!--热调节器模型定义-->
+        <model cname="散热器" ename="heatExchanger" type="class">
+            <members>
+            </members>
+        </model>
+        
+        <!--抽头调节器模型定义-->
+        <model cname="抽头调节器" ename="TapChanger" type="class" parent="PowerSystemResource">
+            <members>
+                <member name="tapChanger" description="抽头调节器" data_type="instance" model="TapChanger"/>
+            </members>
+        </model>
+        
+        <!--调节计划模型定义-->
+        <model cname="调节计划" ename="RegulationSchedule" type="class">
+            <members>
+            </members>
+        </model>
+        
+        <!--电压等级模型定义-->
+        <model cname="电压等级模型" ename="VoltageLever" type="class" parent="EquipmentContainer">
+            <members>
+                <member name="highVoltageLimit" description="母线的最高电压限值（kV）" data_type="instance" model="Voltage"/>
+                <member name="lowVoltageLimit" description="母线的最低电压限值（kV）" data_type="instance" model="Voltage"/>
+            </members>
+        </model>
+        
+        <!--间隔模型定义-->
+        <model cname="间隔模型" ename="Bay" type="class" parent="EquipmentContainer">
+            <members>
+                <member name="bayEnergyMeasFlag" description="有/无kWh/kvarh量测" data_type="Boolean"/>
+                <member name="bayPowerMeasFlag" description="有/无MW/Mvar量测" data_type="Boolean"/>
+                <member name="bcf" description="断路器配置" data_type="instance" model="BreakerConfiguration"/>
+                <member name="bbc" description="母线结线" data_type="instance" model="BusbarConfiguration"/>
+            </members>
+        </model>
+        
+        <!--组合开关模型定义-->
+        <model cname="组合开关" ename="CompositeSwitch" type="class" parent="EquipmentContainer">
+            <members>
+                <member name="id" description="ID" data_type="String"/>
+                <member name="MemberOfPole" description="所属杆塔" data_type="instance" model="Pole"/>
+                <member name="switchMembers" description="开关成员" data_type="instance" model="Switch"/>
+            </members>
+        </model>
+
+        <!--开关模型定义-->
+        <model cname="开关" ename="Switch" type="class" parent="ConductingEquipment">
+            <members>
+                <member name="id" description="ID" data_type="String"/>
+                <member name="switchType" description="开关类型" data_type="instance" model="SwitchType"/>
+                <member name="MemberOfPole" description="所属杆塔" data_type="instance" model="Pole"/>
+                <member name="normalOpen" description="开关设备常开则置为1" data_type="boolean"/>
+                <member name="switchOnCount" description="开关最近一次复位或初始化以来的开关的闭合次数" data_type="instance" model="Counter"/>
+                <member name="switchOnDate" description="开关最近一次闭合的日期和时间" data_type="instance" model="AbsoluteDateTime"/>
+            </members>
+        </model>
+        
+        <!--断路器模型定义-->
+        <model cname="断路器" ename="Breaker" type="class" parent="Switch">
+            <members>
+                <member name="ampRating" description="故障跳闸的额定电流值(A)" data_type="instance" model="CurrentFlow"/>
+                <member name="inTransitTime" description="从断开到闭合的过渡时间(s)" data_type="instance" model="Seconds"/>
+            </members>
+        </model>   
+        
+        <!--刀闸模型定义-->
+        <model cname="刀闸" ename="Disconnector" type="class" parent="Switch">
+            <members>               
+            </members>
+        </model>     
+        
+        <!--熔断器模型定义-->
+        <model cname="熔断器" ename="Fuse" type="class" parent="Switch">
+            <members>      
+                <member name="ampRating" description="故障熔断电流额定值（A）" data_type="instance" model="CurrentFlow"/>
+            </members>
+        </model>
+        
+        <!--避雷器模型定义-->
+        <model cname="避雷器" ename="LightningArrestor" type="class" parent="ConductingEquipment">
+            <members>      
+                <member name="id" description="ID" data_type="String"/>
+            </members>
+        </model>  
+
+        <!--负荷开关模型定义-->
+        <model cname="负荷开关" ename="LoadBreakSwitch" type="class" parent="Switch">
+            <members>      
+                <member name="ampRating" description="导线或电缆在规定发热情况下的电流承载容量（A）" data_type="instance" model="CurrentFlow"/>
+            </members>
+        </model>  
+        
+        <!--补偿器模型定义-->
+        <model cname="补偿器" ename="Compensator" type="class" parent="RegulatingCondEq">
+            <members>
+                <member name="aVRDelay" description="连接或断开所需的时间延迟（s）" data_type="instance" model="Seconds"/>
+                <member name="impedance" description="电容器的正序阻抗" data_type="instance" model="Impedance"/>
+                <member name="maximumkV" description="电容器组的最大容许运行电压" data_type="instance" model="Voltage"/>
+                <member name="maximumSections" description="电容器组可以投入的最大电容器数" data_type="instance" model="Counter"/>
+                <member name="minimumkV" description="电容器组的最小容许运行电压" data_type="instance" model="Voltage"/>
+                <member name="mVArPerSection" description="电容器组每个可切换部分在额定kV下的无功MVAr大小" data_type="instance" model="ReactivePower"/>
+                <member name="nominalkV" description="测量标称无功MVAr时的标称电压" data_type="instance" model="Voltage"/>
+                <member name="nominalMVAr" description="电容器组在标称kV的标称输出无功MVAr" data_type="instance" model="ReactivePower"/>
+                <member name="normalSections" description="一个电容器组的投入分组的正常数目" data_type="instance" model="Counter"/>
+                <member name="r" description="电容器组的正序电阻" data_type="instance" model="Seconds"/>
+                <member name="switchOnCount" description="电容器计数器最近一次复位或初始化以来的投入次数" data_type="instance" model="Seconds"/>
+                <member name="switchOnDate" description="从断开到闭合的过渡时间(s)" data_type="instance" model="AbsoluteDateTime"/>
+                <member name="voltSensitivity" description="该设备调节母线电压所必需的电压灵敏度(标幺电压/MVAr)" data_type="instance" model="PUkVPerMVAr"/>
+                <member name="x" description="电容器组的正序电抗" data_type="instance" model="Reactance"/>
+                <member name="yPerSection" description="用每一分组的MVAr来计算，并按网络电压修正" data_type="instance" model="Admittance"/>
+                <member name="compensatorType" description="补偿器有多少个端点" data_type="instance" model="CompensatorType"/>
+            </members>
+        </model>
+
+        <!--静止无功补偿器模型定义-->
+        <model cname="静止无功补偿器" ename="StaticVarCompensator" type="class" parent="RegulatingCondEq">
+            <members>
+                <member name="capacitiveRating" description="最大可用容性无功功率" data_type="instance" model="Reactance"/>
+                <member name="inductiveRating" description="最大可用感性无功功率" data_type="instance" model="Reactance"/>
+                <member name="sVCControlMode" description="SVC控制模式（MVAr还是Voltage）" data_type="instance" model="ControlMode"/>
+                <member name="slope" description="该设备调节每MVar的无功所改变的母线电压大小(标幺电压/MVAr)" data_type="instance" model="PUkVPerMVAr"/>
+                <member name="voltageSetPoint" description="电压设定点" data_type="instance" model="Voltage"/>
+            </members>
+        </model>
+        
+        <!--线路模型定义-->
+        <model cname="线路" ename="Line" type="class" parent="Equipment">
+            <members>
+                <member name="id" description="ID" data_type="float"/>
+                <member name="voltage" description="电压" data_type="float"/>
+                <member name="current" description="电流" data_type="float"/>
+                <member name="length" description="长度" data_type="float"/>
+                <member name="d" description="线径" data_type="float"/>
+                <member name="type" description="型号" data_type="String"/>
+                <member name="configuration" description="架空导线则为真" data_type="boolean"/>
+                <member name="underground" description="电缆则为真" data_type="boolean"/>
+                <member name="terminals" description="所属端点" data_type="instance" model="Terminal"/>
+            </members>
+        </model>
+
+        <!--电线类型模型定义-->
+        <model cname="电线类型" ename="WireType" type="class">
+            <members>
+                <member name="phaseConductorCount" description="导线的分裂数" data_type="instance" model="Counter"/>
+                <member name="phaseConductorSpacing" description="分裂导线之间的距离（短长度单位）" data_type="instance" model="ShortLength"/>
+                <member name="ampRating" description="电线或电缆在规定的热稳定条件下的电流承载容量(A)" data_type="instance" model="CurrentFlow"/>
+                <member name="gMR" description="平均几何半径" data_type="instance" model="ShortLength"/>
+                <member name="radius" description="导线的半径" data_type="instance" model="ShortLength"/>
+                <member name="resistance" description="每单位长度导线的电阻" data_type="instance" model="Resistance"/>
+            </members>
+        </model>
+        
+        <!--导体模型定义-->
+        <model cname="导体" ename="Conductor" type="class" parent="ConductingEquipment">
+            <members>  
+                <member name="id" description="ID" data_type="String"/>
+                <member name="startNode" description="起点编号" data_type="int"/>
+                <member name="endNode" description="终点编号" data_type="int"/>       
+                <member name="b0ch" description="均匀分布的零序并联（充电）电纳" data_type="instance" model="Susceptance"/>
+                <member name="bch" description="均匀分布的正序并联（充电）电纳 " data_type="instance" model="Susceptance"/>
+                <member name="g0ch" description="均匀分布的零序并联（充电）电导 " data_type="instance" model="Conductance"/>
+                <member name="gch" description="均匀分布的正序并联（充电）电导" data_type="instance" model="Conductance"/>
+                <member name="length" description="线路段容量的区段长度（长长度单位）" data_type="instance" model="LongLength"/>
+                <member name="r" description="线路段的正序串联电阻" data_type="instance" model="Resistance"/>
+                <member name="r0" description="线路段的零序串联电阻" data_type="instance" model="Resistance"/>
+                <member name="x" description="线路段的正序串联电抗" data_type="instance" model="Reactance"/>
+                <member name="x0" description="线路段的零序串联电抗" data_type="instance" model="Reactance"/>
+            </members>
+        </model>
+        
+        <!--交流线段模型定义-->
+        <model cname="交流线段" ename="ACLineSegment" type="class" parent="Conductor">
+            <members>
+                <member name="id" description="ID" data_type="String"/>
+                <member name="ACLine_Type" description="交流线类型" data_type="instance" model="ACLineSegmentType"/>
+            </members>
+        </model>
+        
+        <!--直流线段模型定义-->
+        <model cname="直流线段" ename="DCLineSegment" type="class" parent="Conductor">
+            <members>     
+                <member name="dcSegmentInductance" description="直流线路段的电感(mH)" data_type="instance" model="Inductance"/>
+                <member name="dcSegmentResistance" description="直流线路段的电阻(欧姆)" data_type="instance" model="Resistance"/>
+            </members>
+        </model>
+        
+        <!--等值电源模型定义-->
+        <model cname="等值电源" ename="EquivalentSource" type="class" parent="ConductingEquipment">
+            <members>     
+                <member name="xn" description="戴维南负序电抗(欧姆)" data_type="instance" model="Reactance"/>
+                <member name="rn" description="戴维南负序电阻(欧姆)" data_type="instance" model="Resistance"/>
+                <member name="nominalVoltage" description="标称线电压" data_type="instance" model="Voltage"/>
+                <member name="x" description="戴维南正序电抗(欧姆)" data_type="instance" model="Reactance"/>
+                <member name="r" description="戴维南正序电阻(欧姆)" data_type="instance" model="Resistance"/>
+                <member name="voltageAngle" description="A相开路相角" data_type="instance" model="AngleRadians"/>
+                <member name="voltageMagnitude" description="开路线电压幅值" data_type="instance" model="Voltage"/>
+                <member name="x0" description="戴维南零序电抗(欧姆)" data_type="instance" model="Reactance"/>
+                <member name="r0" description="戴维南零序电阻(欧姆)" data_type="instance" model="Resistance"/>
+            </members>
+        </model>
+        
+        <!--等值负荷模型定义-->
+        <model cname="等值负荷" ename="EquivalentLoad" type="class" parent="EnergyConsumer">
+            <members>     
+                <member name="feederLoadMgtFactor" description="馈线在负荷管理中的比重(%)" data_type="instance" model="PerCent"/>
+                <member name="mVArColdPickUpFactor" description="冷启动的标称馈线负荷的MVAr数量(%)" data_type="instance" model="PerCent"/>
+                <member name="mWColdPickUpFactor" description="冷启动的标称馈线负荷MW的数量(%)" data_type="instance" model="PerCent"/>
+                <member name="phaseAmpRating" description="各相的额定电流安培值" data_type="instance" model="CurrentFlow"/>
+                <member name="loadAllocationFactor" description="允许按参与系数分配负荷" data_type="instance" model="Float"/>
+            </members>
+        </model>
+        
+        <!--拓扑孤岛模型定义-->
+        <model cname="拓扑岛" ename="IopologicalIsland" type="class" parent="Naming">
+            <members>
+                <member name="t_node" description="拓扑接点" data_type="instance" model="TopologicalNode"/>
+            </members>
+        </model>
+        
+        <!--拓扑接点模型定义-->
+        <model cname="拓扑接点" ename="TopologicalNode" type="class" parent="Naming">
+            <members>
+                <member name="c_node" description="连接点" data_type="instance" model="ConnectivityNode"/>
+                <member name="energized" description="节点带电时为真" data_type="Boolean"/>
+                <member name="loadCarrying" description="节点带负荷时为真" data_type="Boolean"/>
+                <member name="netInjectionMVar" description="净注入无功(MVar)" data_type="instance" model="ReactivePower"/>
+                <member name="netInjectionMW" description="净注入有功(MW)" data_type="instance" model="ActivePower"/>
+                <member name="observabilityFlag" description="节点的可观测性状态" data_type="Boolean"/>
+                <member name="phaseAngle" description="节点的相位角 " data_type="instance" model="AngleRadians"/>
+                <member name="voltage" description="节点的电压" data_type="instance" model="Voltage"/>
+            </members>
+        </model>
+        
+        <!--连接节点模型定义-->
+        <model cname="连接节点" ename="ConnectivityNode" type="class" parent="Naming">
+            <members>
+                <member name="location" description="所属位置 " data_type="instance" model="Location"/>
+            </members>
+        </model>
+        
+        <!--端点模型定义-->
+        <model cname="端点" ename="Terminal" type="class" parent="Naming">
+            <members>
+                <member name="condEquipment" description="所属连接设备 " data_type="instance" model="ConductingEquipment"/>
+                <member name="condNode" description="所属位置连接点 " data_type="instance" model="ConnectivityNode"/>
+            </members>
+        </model>
+        
+        <!--电压控制区模型定义-->
+        <model cname="电压控制区" ename="VoltageControlZone" type="class" parent="PowerSystemResource">
+            <members>
+            </members>
+        </model>
+        
+        <!--线路模型定义-->
+        <model cname="线路" ename="Line" type="class" parent="PowerSystemResource">
+            <members>
+            </members>
+        </model>
+        
+        <!--基准功率模型定义-->
+        <model cname="基准功率" ename="BasePower" type="class">
+            <members>
+                <member name="basePower" description="基准功率" data_type="float"/>
+            </members>
+        </model>
+        
+        <!--基准电压模型定义-->
+        <model cname="基准电压" ename="BaseVoltage" type="class">
+            <members>
+                <member name="baseVoltage" description="基准电压" data_type="float"/>
+            </members>
+        </model>
+        
+        <!--操作电压模型定义-->
+        <model cname="操作电压" ename="OperatingVoltage" type="class">
+            <members>
+                <member name="operatingVoltage" description="操作电压" data_type="float"/>
+            </members>
+        </model>
+
+        <!--季节模型定义-->
+        <model cname="季节" ename="Season" type="class" parent="Naming">
+            <members>
+                <member name="endDate" description="季节结束的日期" data_type="instance" model="AbsoluteDateTime"/>
+                <member name="startDate" description="季节开始的日期" data_type="instance" model="AbsoluteDateTime"/>
+            </members>
+        </model>
+
+        <!--绝对日期时间模型定义-->
+        <model cname="绝对日期时间" ename="AbsoluteDateTime" type="class">
+            <members>
+                <member name="value" description="日期及时间(格式为yyyy-mm-ddThh:mm:ss)" data_type="instance" model="TimeStamp"/>
+                <member name="units" description="单位" data_type="String"/>
+            </members>
+        </model>
+        
+        <!--企业模型定义-->
+        <model cname="企业模型" ename="Enterprise" type="class">
+            <members>
+                <member name="address" description="地址" data_type="String"/>
+                <member name="contactor" description="联系人" data_type="String"/>
+                <member name="main_site" description="网页地址" data_type="String"/>
+                <member name="phone no" description="电话" data_type="String"/>
+                <member name="cal no" description="传真" data_type="String"/>
+                <member name="introduce" description="企业简介" data_type="String"/> 
+                <member name="companyType" description="企业类型" data_type="instance" model="CompanyType"/>
+            </members>
+        </model>
+        
+        <!--项目模型定义-->
+        <model cname="项目" ename="Project" type="class">
+            <members>
+                <member name="project_name" description="项目名称" data_type="String"/>
+                <member name="create_time" description="创建时间" data_type="String"/>
+                <member name="information" description="项目信息" data_type="String"/>
+                <member name="authorit" description="创建者" data_type="String"/>
+                <member name="project_progress" description="项目进度" data_type="String"/>
+                <member name="project_status" description="项目状态" data_type="String"/>
+            </members>
+        </model>
+        
+        <!--网络模型定义-->
+        <model cname="电网" ename="PowerNetwork" type="class">
+            <members>
+                <member name="net_name" description="电网名称" data_type="String"/>
+                <member name="volt_range" description="电压范围" data_type="String"/>
+                <member name="information" description="电网信息" data_type="String"/>
+            </members>
+        </model>
+        
+        <relation cname="公司与项目的关系" ename="co_pr_relation" type="point">
+            <left model="Enterprise" member="ename">
+            </left>
+            <right model="Project" member="ename"> 
+            </right>
+        </relation>
+        
+        <relation cname="项目与电网的关系" ename="pr_nw_relation" type="point">
+            <left model="Project" member="ename">
+            </left>
+            <right model="PowerNetwork" member="ename"> 
+            </right>
+        </relation>
+        
+        <relation cname="设备容器与设备的关系" ename="ec_eq_relation" type="include">
+            <left model="EquipmentContainer" member="ename">
+            </left>
+            <right model="Equipment" member="ename"> 
+            </right>
+        </relation>
+        
+        <relation cname="变电站与间隔的关系" ename="ss_bay_relation" type="include">
+            <left model="Substation" member="ename">
+            </left>
+            <right model="Bay" member="ename"> 
+            </right>
+        </relation>
+        
+        <relation cname="变电站与组合开关的关系" ename="ss_cs_relation" type="include">
+            <left model="Substation" member="ename">
+            </left>
+            <right model="CompositeSwitch" member="ename"> 
+            </right>
+        </relation>
+        
+        <relation cname="组合开关与开关的关系" ename="cs_sw_relation" type="include">
+            <left model="CompositeSwitch" member="ename">
+            </left>
+            <right model="Switch" member="ename"> 
+            </right>
+        </relation>
+        
+        <relation cname="变电站与电压等级的关系" ename="ss_vl_relation" type="include">
+            <left model="Substation" member="ename">
+            </left>
+            <right model="VoltageLevel" member="ename"> 
+            </right>
+        </relation>
+        
+        <relation cname="电压等级与基准电压的关系" ename="vl_bv_relation" type="point">
+            <left model="VoltageLevel" member="ename">
+            </left>
+            <right model="BaseVoltage" member="ename"> 
+            </right>
+        </relation>
+        
+        <relation cname="变压器与绕组的关系" ename="tran_wd_relation" type="include">
+            <left model="PowerTransformer" member="ename">
+            </left>
+            <right model="TransformerWinding" member="ename"> 
+            </right>
+        </relation>
+
+    </modeldefine>
+</root>
